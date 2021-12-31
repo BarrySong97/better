@@ -1,5 +1,5 @@
 import { Button, Empty, Input, Modal } from "@douyinfe/semi-ui";
-import React, { FC, useState } from "react";
+import React, { FC, useCallback, useState } from "react";
 import CubicHabbit from "./components/cubic-habbit";
 import { IconCopyAdd } from "@douyinfe/semi-icons";
 import HabbitDetail from "../habbit-detail";
@@ -14,35 +14,16 @@ import {
 } from "@douyinfe/semi-illustrations";
 import { useAppContext } from "../../layout/context";
 import { Habbit } from "../../API/models/Habbit";
-import moment from "moment";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../../API/db";
 
 export interface HomeProps {}
 const Home: FC<HomeProps> = () => {
   const navigate = useNavigate();
+
+  const listData = useLiveQuery(() => db.habbitList.toArray());
   const { habitatController } = useAppContext();
   const [habbitName, setHabbitName] = useState<string>("");
-  const [listData, setListData] = useState<Habbit[]>();
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.5,
-      },
-    },
-  };
-  const getHabbit = async () => {
-    const data = await habitatController.listHabbit();
-    console.log(data);
-
-    if (data.length) {
-      setListData(data);
-    }
-  };
-  useMount(() => {
-    getHabbit();
-  });
 
   const renderList = () =>
     listData?.map((v) => (
@@ -57,21 +38,17 @@ const Home: FC<HomeProps> = () => {
           navigate("/detail/English");
         }}
         frequency="2 / week"
-        title="English"
+        title={v.name}
       />
     ));
 
-  const onAdd = async (habbitName: string) => {
-    const newItem = await habitatController.addHabbit({
+  const onAdd = useCallback(async () => {
+    const newItem = await habitatController.generateHabbit({
       name: habbitName,
       count: 0,
     });
-    if (listData) {
-      setListData([newItem, ...listData]);
-    } else {
-      setListData([newItem]);
-    }
-  };
+    db.habbitList.add(newItem);
+  }, [habbitName]);
 
   const onCheck = async (id: string, date: Date) => {
     // const res = await habitatController.toggleCheck(id);
@@ -87,7 +64,7 @@ const Home: FC<HomeProps> = () => {
   return (
     <>
       <div className="flex flex-col">
-        {listData ? (
+        {listData?.length ? (
           renderList()
         ) : (
           <Empty
@@ -106,7 +83,7 @@ const Home: FC<HomeProps> = () => {
                 closeable: true,
                 closeOnClickOverlay: true,
                 onConfirm: () => {
-                  onAdd(habbitName);
+                  onAdd();
                 },
                 // theme: "round-button",
                 children: (

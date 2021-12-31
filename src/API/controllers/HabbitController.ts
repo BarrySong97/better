@@ -8,9 +8,9 @@ type PartialOptional<T, K extends keyof T> = {
 export class HabbitController {
   constructor() {}
 
-  async addHabbit(habbit: AddHabbit): Promise<Habbit> {
+  async generateHabbit(habbit: AddHabbit): Promise<Habbit> {
     const habbitId = uuidv4();
-    habbit.id = habbitId;
+    // habbit.id = habbitId;
     console.log(123);
     const habbits: Habbit[] | null = await localforage.getItem("habbits");
     const recorders = new Array(moment().dayOfYear())
@@ -24,8 +24,6 @@ export class HabbitController {
       }));
     habbit.recorders = recorders;
     const res = await localforage.setItem(habbitId, habbit);
-    habbits?.push(res as Habbit);
-    localforage.setItem("habbits", habbits);
     return res as Habbit;
   }
 

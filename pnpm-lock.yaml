@@ -27,6 +27,8 @@ specifiers:
   apexcharts: ^3.32.1
   cordova-sqlite-storage: ^6.0.0
   d3.js: ^0.0.2-security
+  dexie: ^3.2.0
+  dexie-react-hooks: ^1.1.1
   framer-motion: ^5.5.5
   ionicons: ^5.4.0
   localforage: ^1.10.0
@@ -79,6 +81,8 @@ dependencies:
   apexcharts: 3.32.1
   cordova-sqlite-storage: 6.0.0
   d3.js: 0.0.2-security
+  dexie: 3.2.0
+  dexie-react-hooks: 1.1.1_f526c1d26017d2e94d4a7ec83e666024
   framer-motion: 5.5.5_react-dom@17.0.2+react@17.0.2
   ionicons: 5.5.4
   localforage: 1.10.0
@@ -1238,6 +1242,23 @@ packages:
     dependencies:
       ms: 2.1.2
     dev: true
+
+  /dexie-react-hooks/1.1.1_f526c1d26017d2e94d4a7ec83e666024:
+    resolution: {integrity: sha512-Cam5JP6PxHN564RvWEoe8cqLhosW0O4CAZ9XEVYeGHJBa6KEJlOpd9CUpV3kmU9dm2MrW97/lk7qkf1xpij7gA==}
+    peerDependencies:
+      '@types/react': '>=16'
+      dexie: '>=3.1.0-alpha.1 <5.0.0'
+      react: '>=16'
+    dependencies:
+      '@types/react': 17.0.38
+      dexie: 3.2.0
+      react: 17.0.2
+    dev: false
+
+  /dexie/3.2.0:
+    resolution: {integrity: sha512-OpS8ss1CLHYAhxRu6hT+/Gt1uLhKCf0O18xHBdRGlemOWXXRiiOZ0ty1/bACIJzGt1DGmvarzrPwYYt9EkRZfw==}
+    engines: {node: '>=6.0'}
+    dev: false
 
   /dom-helpers/5.2.1:
     resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
