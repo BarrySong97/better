@@ -1,0 +1,6 @@
+{
+	"appId": "barrysong.better",
+	"appName": "Better",
+	"webDir": "dist",
+	"bundledWebRuntime": false
+}
