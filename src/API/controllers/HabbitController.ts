@@ -13,15 +13,17 @@ export class HabbitController {
     // habbit.id = habbitId;
     console.log(123);
     const habbits: Habbit[] | null = await localforage.getItem("habbits");
-    const recorders = new Array(moment().dayOfYear())
-      .fill(0)
-      .map((v, index) => ({
-        date: moment()
-          .dayOfYear(index + 1)
-          .toDate(),
-        isActive: false,
-        habbitId: habbitId,
-      }));
+    const yearDays =
+      moment(`${moment().year()}-2`, "YYYY-MM").daysInMonth() === 28
+        ? 365
+        : 366;
+    const recorders = new Array(yearDays).fill(0).map((v, index) => ({
+      date: moment()
+        .dayOfYear(index + 1)
+        .toDate(),
+      isActive: false,
+      habbitId: habbitId,
+    }));
     habbit.recorders = recorders;
     const res = await localforage.setItem(habbitId, habbit);
     return res as Habbit;

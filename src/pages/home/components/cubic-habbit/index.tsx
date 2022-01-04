@@ -26,7 +26,6 @@ const CubicHabbit: FC<CubicHabbitProps> = ({
   };
 
   const renderWeek = () => {
-    const currentWeekDay = moment().weekday(0);
     const weekDayString = getWeekDay();
     return weekDayString.map((day, index) => {
       const isActive = weekData[index].isActive;

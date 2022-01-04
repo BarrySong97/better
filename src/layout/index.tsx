@@ -1,11 +1,10 @@
 import React, { createContext, FC, useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
-import { NavBar, Toast } from "react-vant";
+import { Dialog, NavBar, Toast } from "react-vant";
 import { Typography } from "@douyinfe/semi-ui";
-// import "./index.css";
-import { motion } from "framer-motion";
-import main from "../API/App";
-import { AppContext, Provider } from "./context";
+import { db } from "../API/db";
+import { Provider } from "./context";
+import { IconDeleteStroked } from "@douyinfe/semi-icons";
 export interface LayoutProps {}
 const { Title } = Typography;
 
@@ -26,6 +25,15 @@ const Layout: FC<LayoutProps> = ({ children }) => {
     }
   }, [pathname]);
 
+  const onDelelte = async () => {
+    console.log(params.name);
+
+    return await db.habbitList
+      .where("name")
+      .equals(params.name ?? "")
+      .delete();
+  };
+
   const getToolbarProps = () => {
     if (params.name) {
       return {
@@ -34,6 +42,23 @@ const Layout: FC<LayoutProps> = ({ children }) => {
         onClickLeft: () => {
           navigate("/");
         },
+        rightText: (
+          <IconDeleteStroked
+            onClick={() => {
+              Dialog.confirm({
+                title: "Delte Habbit",
+                closeable: true,
+                closeOnClickOverlay: true,
+                onConfirm: async () => {
+                  const count = await onDelelte();
+                  if (count) {
+                    navigate("/");
+                  }
+                },
+              });
+            }}
+          />
+        ),
       };
     } else {
       return {
