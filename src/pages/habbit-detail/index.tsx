@@ -113,7 +113,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
       missed: item[0].recorders.length - item[0].count,
       total: item[0].recorders.length,
     };
-    const days = await getMonthData();
+    const days = await getHeatData();
     const res = days.map((v, index) => {
       return {
         date: moment(v.date).format("YYYY-MM-DD"),
@@ -125,25 +125,18 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
     setHeatMapValues(res);
   });
 
-  const getMonthData = async () => {
+  const getHeatData = async () => {
     const item = await db.habbitList.where({ name: params.name }).toArray();
     const end = item[0].recorders.findIndex(
-      (item) =>
-        moment(item.date).dayOfYear() === moment(today).dayOfYear()
+      (item) => moment(item.date).dayOfYear() === moment(today).dayOfYear()
     );
 
-    return item[0].recorders.slice(
-      end - 150 > 0 ? end - 150 : 0,
-      end + 1
-    );
+    return item[0].recorders.slice(end - 150 > 0 ? end - 150 : 0, end + 1);
   };
 
-  useEffect(() => {
-    console.log(moment().startOf("year").format("YYYY-MM-DD"));
-    console.log(moment().endOf("year").format("YYYY-MM-DD"));
+  const getLineMonthData = async () => {};
+  const getLineWeekData = async () => {};
 
-    console.log(heatMapValues);
-  }, [heatMapValues]);
   return (
     <div className=" pt-4 px-4 ">
       <Section style={{ marginTop: 0 }} text={"Basic Statistics"}>
@@ -187,7 +180,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
               .format("YYYY-MM-DD")}
             endDate={moment().format("YYYY-MM-DD")}
             // showWeekdayLabels={false}
-            
+
             showWeekdayLabels
             values={heatMapValues}
             tooltipDataAttrs={(value: any) => {
