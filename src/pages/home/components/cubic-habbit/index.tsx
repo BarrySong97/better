@@ -3,6 +3,7 @@ import { Button, Card, Typography } from "@douyinfe/semi-ui";
 import moment from "moment";
 import "./index.css";
 import { HabbitRecorder } from "../../../../API/models/Habbit";
+import { db } from "../../../../API/db";
 const { Title, Text } = Typography;
 
 export interface CubicHabbitProps {
@@ -13,23 +14,17 @@ export interface CubicHabbitProps {
   onCheck: (id: string, date: Date) => void;
   weekData: HabbitRecorder[];
 }
-const CubicHabbit: FC<CubicHabbitProps> = ({
-  title,
-  onClick,
-  frequency,
-  weekData,
-  id,
-  onCheck,
-}) => {
+const CubicHabbit: FC<CubicHabbitProps> = ({ title, onClick, weekData }) => {
   const getWeekDay = () => {
     return moment.weekdaysShort();
   };
 
   const renderWeek = () => {
     const weekDayString = getWeekDay();
+
     return weekDayString.map((day, index) => {
       const isActive = weekData[index].isActive;
-      const render = moment().weekday(index).date();
+      const render = moment(weekData[index].date).format("DD");
       const activeCss = isActive
         ? "text-white h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-center"
         : "h-10 w-10 rounded-full flex items-center justify-center bg-indigo-50  text-center";
@@ -47,14 +42,31 @@ const CubicHabbit: FC<CubicHabbitProps> = ({
           </Text>
           <div
             key={`cubic-habbit-render-${index}`}
-            onClick={(e) => {
+            onClick={async (e) => {
               e.stopPropagation();
-              console.log(moment(new Date()));
-              console.log(moment().weekday(index));
+              try {
+                if (
+                  moment().weekday(index).isSameOrBefore(moment(new Date()))
+                ) {
+                  await db.habbitList
+                    .where({
+                      name: title,
+                    })
+                    .modify((f) => {
+                      const item =
+                        f.recorders[moment().weekday(index).dayOfYear() - 1];
+                      console.log(item);
 
-              if (moment().weekday(index).isSameOrBefore(moment(new Date()))) {
-                onCheck(id, moment().weekday(index).toDate());
-              }
+                      item.isActive = !item.isActive;
+
+                      if (item.isActive) {
+                        f.count++;
+                      } else {
+                        f.count--;
+                      }
+                    });
+                }
+              } catch (error) {}
             }}
             className={activeCss}
           >

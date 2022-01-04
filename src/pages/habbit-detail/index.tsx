@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   Avatar,
   Card,
@@ -15,9 +15,22 @@ import "react-calendar-heatmap/dist/styles.css";
 import "./index.css";
 import Chart from "react-apexcharts";
 import Section from "@douyinfe/semi-ui/lib/es/form/section";
+import { useMount } from "ahooks";
+import { db } from "../../API/db";
+import { useParams } from "react-router-dom";
+import moment from "moment";
 const { Title, Text } = Typography;
+
+export interface BasicStatistics {
+  times: number;
+  missed: number;
+  total: number;
+}
 export interface HabbitDetailProps {}
 const HabbitDetail: FC<HabbitDetailProps> = () => {
+  let params = useParams();
+  const [basicStatistics, setBasicStatistics] = useState<BasicStatistics>();
+  const [heatMapValues, setHeatMapValues] = useState<any>();
   const commonCardStyle = {
     color: "black",
     // background: "#292929",
@@ -25,32 +38,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
   };
   const today = new Date();
   const commentClass = "flex flex-col justify-center items-center";
-  const data = [
-    {
-      key: "同比上周",
-      value: (
-        <span>
-          11
-          <IconArrowUp
-            size="small"
-            style={{ color: "red", marginLeft: "4px" }}
-          />
-        </span>
-      ),
-    },
-    {
-      key: "同比上月",
-      value: (
-        <span>
-          3
-          <IconArrowUp
-            size="small"
-            style={{ color: "red", marginLeft: "4px" }}
-          />
-        </span>
-      ),
-    },
-  ];
+
   const lineOption = {
     series: [
       {
@@ -117,25 +105,45 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
       },
     },
   };
-  function getRange(count) {
-    return Array.from({ length: count }, (_, i) => i);
-  }
 
-  function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-  function shiftDate(date, numDays) {
-    const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + numDays);
-    return newDate;
-  }
-  const randomValues = getRange(363).map((index) => {
-    return {
-      date: shiftDate(today, -index),
-      count: getRandomInt(1, 3),
+  useMount(async () => {
+    const item = await db.habbitList.where({ name: params.name }).toArray();
+    const statistic = {
+      times: item[0].count,
+      missed: item[0].recorders.length - item[0].count,
+      total: item[0].recorders.length,
     };
+    const days = await getMonthData();
+    const res = days.map((v, index) => {
+      return {
+        date: moment(v.date).format("YYYY-MM-DD"),
+        count: v.isActive ? 3 : 1,
+      };
+    });
+
+    setBasicStatistics(statistic);
+    setHeatMapValues(res);
   });
 
+  const getMonthData = async () => {
+    const item = await db.habbitList.where({ name: params.name }).toArray();
+    const end = item[0].recorders.findIndex(
+      (item) =>
+        moment(item.date).dayOfYear() === moment(today).dayOfYear()
+    );
+
+    return item[0].recorders.slice(
+      end - 150 > 0 ? end - 150 : 0,
+      end + 1
+    );
+  };
+
+  useEffect(() => {
+    console.log(moment().startOf("year").format("YYYY-MM-DD"));
+    console.log(moment().endOf("year").format("YYYY-MM-DD"));
+
+    console.log(heatMapValues);
+  }, [heatMapValues]);
   return (
     <div className=" pt-4 px-4 ">
       <Section style={{ marginTop: 0 }} text={"Basic Statistics"}>
@@ -144,15 +152,15 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
           style={commonCardStyle}
         >
           <div className={commentClass}>
-            <div>125</div>
+            <div>{basicStatistics?.times}</div>
             <div>Times</div>
           </div>
           <div className={commentClass}>
-            <div>125</div>
+            <div>{basicStatistics?.missed}</div>
             <div>missed</div>
           </div>
           <div className={commentClass}>
-            <div>125</div>
+            <div>{basicStatistics?.total}</div>
             <div>Total</div>
           </div>
         </div>
@@ -171,26 +179,32 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
         />
       </Section>
       <Section style={{ marginTop: 0 }} className="px-2" text={"The Heat"}>
-        <CalendarHeatmap
-          startDate={shiftDate(today, -150)}
-          endDate={today}
-          showWeekdayLabels={false}
-          showMonthLabels={false}
-          values={randomValues}
-          classForValue={(value) => {
-            if (!value) {
-              return "color-empty";
-            }
-            return `color-github-${value.count}`;
-          }}
-          tooltipDataAttrs={(value) => {
-            return {
-              "data-tip": `${value.date
-                .toISOString()
-                .slice(0, 10)} has count: ${value.count}`,
-            };
-          }}
-        />
+        {heatMapValues && (
+          <CalendarHeatmap
+            startDate={moment()
+              .startOf("year")
+              .subtract(150, "days")
+              .format("YYYY-MM-DD")}
+            endDate={moment().format("YYYY-MM-DD")}
+            // showWeekdayLabels={false}
+            
+            showWeekdayLabels
+            values={heatMapValues}
+            tooltipDataAttrs={(value: any) => {
+              console.log(value);
+
+              return {
+                "data-tip": value.date,
+              };
+            }}
+            classForValue={(value) => {
+              if (!value) {
+                return "color-github-1";
+              }
+              return `color-github-${value.count}`;
+            }}
+          />
+        )}
       </Section>
     </div>
   );

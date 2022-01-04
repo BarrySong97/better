@@ -1,4 +1,11 @@
-import { Button, Empty, Input, Modal } from "@douyinfe/semi-ui";
+import {
+  Button,
+  Form,
+  Empty,
+  useFormApi,
+  Input,
+  Modal,
+} from "@douyinfe/semi-ui";
 import React, { FC, useCallback, useState } from "react";
 import CubicHabbit from "./components/cubic-habbit";
 import { IconCopyAdd } from "@douyinfe/semi-icons";
@@ -14,40 +21,61 @@ import { useAppContext } from "../../layout/context";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../../API/db";
 import moment from "moment";
+import { BaseFormApi } from ".pnpm/@douyinfe+semi-foundation@2.2.0/node_modules/@douyinfe/semi-foundation/lib/es/form/interface";
+import { getCurrentWeekDate } from "../../utils/date";
 
 export interface HomeProps {}
 const Home: FC<HomeProps> = () => {
   const navigate = useNavigate();
-  console.log();
+
   const listData = useLiveQuery(() => db.habbitList.toArray());
   const { habitatController } = useAppContext();
   const [habbitName, setHabbitName] = useState<string>("");
   const [state, { toggle, setTrue, setFalse }] = useBoolean(false);
+  const [formApi, setFormApi] = useState<BaseFormApi<any>>();
+  const renderList = () => {
+    const days = getCurrentWeekDate();
 
-  const renderList = () =>
-    listData?.map((v) => (
-      <CubicHabbit
-        key={v.id}
-        id={v.id}
-        onCheck={(id, date) => {
-          onCheck(id, date);
-        }}
-        weekData={v.recorders}
-        onClick={() => {
-          navigate(`/detail/${v.name}`);
-        }}
-        frequency="2 / week"
-        title={v.name}
-      />
-    ));
+    return listData?.map((v) => {
+      const idx = v.recorders.findIndex(
+        (v) => moment(v.date).dayOfYear() === days[0].dayOfYear()
+      );
+
+      const weekData = v.recorders.slice(idx, idx + 7);
+
+      return (
+        <CubicHabbit
+          key={v.id}
+          id={v.id}
+          onCheck={(id, date) => {
+            onCheck(id, date);
+          }}
+          weekData={weekData}
+          onClick={() => {
+            navigate(`/detail/${v.name}`);
+          }}
+          frequency="2 / week"
+          title={v.name}
+        />
+      );
+    });
+  };
 
   const onAdd = async () => {
-    const newItem = await habitatController.generateHabbit({
-      name: habbitName,
-      count: 0,
-    });
-    await db.habbitList.add(newItem);
-    setFalse();
+    console.log(123);
+    try {
+      const values = await formApi?.validate();
+
+      const newItem = await habitatController.generateHabbit({
+        name: habbitName,
+        createDate: new Date(),
+        count: 0,
+      });
+      await db.habbitList.add(newItem);
+      setFalse();
+    } catch (e) {
+      formApi?.setError("name", "name are unique");
+    }
   };
 
   const onCheck = async (id: string, date: Date) => {
@@ -86,20 +114,29 @@ const Home: FC<HomeProps> = () => {
             New Habbit
           </Button>
 
-          <Dialog
-            visible={state}
-            title="标题"
-            showCancelButton
-            onCancel={() => setFalse()}
-            onConfirm={onAdd}
-          >
-            <div style={{ textAlign: "center", margin: "16px" }}>
-              <Input
-                onChange={(v) => setHabbitName(v)}
-                placeholder={"NEW HABBIT"}
-              ></Input>
-            </div>
-          </Dialog>
+          {state && (
+            <Dialog
+              visible={state}
+              title="Add Habbit"
+              showCancelButton
+              onCancel={() => setFalse()}
+              onConfirm={onAdd}
+            >
+              <div style={{ textAlign: "center", margin: "16px" }}>
+                <Form getFormApi={(formApi) => setFormApi(formApi)}>
+                  <Form.Input
+                    field="name"
+                    noLabel
+                    rules={[
+                      { required: true, message: "name can not be empty" },
+                    ]}
+                    onChange={(v) => setHabbitName(v)}
+                    placeholder={"NEW HABBIT"}
+                  ></Form.Input>
+                </Form>
+              </div>
+            </Dialog>
+          )}
         </div>
       </div>
     </>

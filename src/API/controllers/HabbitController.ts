@@ -9,10 +9,6 @@ export class HabbitController {
   constructor() {}
 
   async generateHabbit(habbit: AddHabbit): Promise<Habbit> {
-    const habbitId = uuidv4();
-    // habbit.id = habbitId;
-    console.log(123);
-    const habbits: Habbit[] | null = await localforage.getItem("habbits");
     const yearDays =
       moment(`${moment().year()}-2`, "YYYY-MM").daysInMonth() === 28
         ? 365
@@ -21,12 +17,11 @@ export class HabbitController {
       date: moment()
         .dayOfYear(index + 1)
         .toDate(),
+
       isActive: false,
-      habbitId: habbitId,
     }));
     habbit.recorders = recorders;
-    const res = await localforage.setItem(habbitId, habbit);
-    return res as Habbit;
+    return habbit as Habbit;
   }
 
   async listHabbit(): Promise<Habbit[]> {

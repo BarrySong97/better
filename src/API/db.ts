@@ -6,7 +6,7 @@ export class AppDB extends Dexie {
   constructor() {
     super("habbit");
     this.version(1).stores({
-      habbitList: "++id, name, count,habbitRecorder",
+      habbitList: "++id, &name, count,habbitRecorder, createDate",
     });
   }
 }
