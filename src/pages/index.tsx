@@ -14,7 +14,6 @@ import Home from "./home";
 
 const Page: React.FC = () => {
   //   const { name } = useParams<{ name: string }>();
-  console.log(moment(new Date()).endOf("day"));
 
   return <Home />;
 };
