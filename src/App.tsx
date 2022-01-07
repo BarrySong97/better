@@ -7,8 +7,6 @@ import HabbitDetail from "./pages/habbit-detail";
 import Layout from "./layout";
 import moment from "moment";
 
-console.log(moment().dayOfYear(1));
-
 function App() {
   return (
     <Routes>

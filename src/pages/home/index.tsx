@@ -1,22 +1,11 @@
-import {
-  Button,
-  Form,
-  Empty,
-  useFormApi,
-  Input,
-  Modal,
-} from "@douyinfe/semi-ui";
-import React, { FC, useCallback, useState } from "react";
+import { Button, Form } from "@douyinfe/semi-ui";
+import React, { FC, useEffect, useState } from "react";
 import CubicHabbit from "./components/cubic-habbit";
 import { IconCopyAdd } from "@douyinfe/semi-icons";
 import { Dialog } from "react-vant";
 import "./index.css";
 import { useBoolean } from "ahooks";
 import { useNavigate } from "react-router-dom";
-import {
-  IllustrationIdle,
-  IllustrationIdleDark,
-} from "@douyinfe/semi-illustrations";
 import { useAppContext } from "../../layout/context";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../../API/db";
@@ -31,6 +20,8 @@ const Home: FC<HomeProps> = () => {
   const listData = useLiveQuery(() => db.habbitList.toArray());
   const { habitatController } = useAppContext();
   const [habbitName, setHabbitName] = useState<string>("");
+  const [isEmpty, { setTrue: setEmptyTrue, setFalse: setEmptyFalse }] =
+    useBoolean(false);
   const [state, { toggle, setTrue, setFalse }] = useBoolean(false);
   const [formApi, setFormApi] = useState<BaseFormApi<any>>();
   const renderList = () => {
@@ -47,9 +38,6 @@ const Home: FC<HomeProps> = () => {
         <CubicHabbit
           key={v.id}
           id={v.id}
-          onCheck={(id, date) => {
-            onCheck(id, date);
-          }}
           weekData={weekData}
           onClick={() => {
             navigate(`/detail/${v.name}`);
@@ -61,48 +49,35 @@ const Home: FC<HomeProps> = () => {
     });
   };
 
-  const onAdd = async () => {
-    console.log(123);
-    try {
-      const values = await formApi?.validate();
+  useEffect(() => {
+    if (listData?.length) {
+      setEmptyFalse();
+    } else {
+      setEmptyTrue();
+    }
+  }, [listData]);
 
-      const newItem = await habitatController.generateHabbit({
+  const onAdd = async () => {
+    try {
+      await habitatController.addHabbit({
         name: habbitName,
         createDate: new Date(),
         count: 0,
       });
-      await db.habbitList.add(newItem);
+
       setFalse();
     } catch (e) {
-      formApi?.setError("name", "name are unique");
+      formApi?.setError("name", "name are unique or name are unique");
     }
-  };
-
-  const onCheck = async (id: string, date: Date) => {
-    // const res = await habitatController.toggleCheck(id);
-    // if (res && listData) {
-    //   const item = listData.find((v) => v.id === id);
-    //   if (item) {
-    //     item.recorders.find((v) => moment(date).day() === moment(v.date).day());
-    //   }
-    //   setListData([...listData]);
-    // }
   };
 
   return (
     <>
-      <div className="flex flex-col">
-        {listData?.length ? (
-          renderList()
-        ) : (
-          // <></>
-          <Empty
-            image={<IllustrationIdle />}
-            darkModeImage={<IllustrationIdleDark />}
-            description={"Nothing Here"}
-            style={{ marginBottom: 16, marginTop: 200 }}
-          />
-        )}
+      <div
+        style={{ height: "calc(100vh - 100px)" }}
+        className="flex flex-col overflow-auto"
+      >
+        {renderList()}
 
         <div className="pb-4 flex justify-center">
           <Button

@@ -12,8 +12,6 @@ if (import.meta.env.MODE !== "development") {
   setStatusBarStyle();
 }
 
-const { habitatController } = main();
-
 // StatusBar.setOverlaysWebView({ overlay: true });
 // StatusBar.setBackgroundColor({ color: "transparent" });
 ReactDOM.render(

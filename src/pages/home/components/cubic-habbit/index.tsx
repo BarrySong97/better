@@ -4,6 +4,7 @@ import moment from "moment";
 import "./index.css";
 import { HabbitRecorder } from "../../../../API/models/Habbit";
 import { db } from "../../../../API/db";
+import { useAppContext } from "../../../../layout/context";
 const { Title, Text } = Typography;
 
 export interface CubicHabbitProps {
@@ -11,10 +12,10 @@ export interface CubicHabbitProps {
   id: string;
   frequency: string;
   onClick: () => void;
-  onCheck: (id: string, date: Date) => void;
   weekData: HabbitRecorder[];
 }
 const CubicHabbit: FC<CubicHabbitProps> = ({ title, onClick, weekData }) => {
+  const { habitatController } = useAppContext();
   const getWeekDay = () => {
     return moment.weekdaysShort();
   };
@@ -48,23 +49,7 @@ const CubicHabbit: FC<CubicHabbitProps> = ({ title, onClick, weekData }) => {
                 if (
                   moment().weekday(index).isSameOrBefore(moment(new Date()))
                 ) {
-                  await db.habbitList
-                    .where({
-                      name: title,
-                    })
-                    .modify((f) => {
-                      const item =
-                        f.recorders[moment().weekday(index).dayOfYear() - 1];
-                      console.log(item);
-
-                      item.isActive = !item.isActive;
-
-                      if (item.isActive) {
-                        f.count++;
-                      } else {
-                        f.count--;
-                      }
-                    });
+                  await habitatController.toggleCheck(title, index);
                 }
               } catch (error) {}
             }}

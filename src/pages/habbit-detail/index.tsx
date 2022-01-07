@@ -1,15 +1,14 @@
 import React, { FC, useMemo, useState } from "react";
-import { TabPane, Tabs, Typography } from "@douyinfe/semi-ui";
+import { TabPane, Tabs, Tooltip } from "@douyinfe/semi-ui";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import "./index.css";
 import Chart from "react-apexcharts";
 import Section from "@douyinfe/semi-ui/lib/es/form/section";
 import { useMount } from "ahooks";
-import { db } from "../../API/db";
 import { useParams } from "react-router-dom";
 import moment from "moment";
-import { Habbit } from "../../API/models/Habbit";
+import { useAppContext } from "../../layout/context";
 
 export interface BasicStatistics {
   times: number;
@@ -17,10 +16,10 @@ export interface BasicStatistics {
   total: number;
 }
 export interface HabbitDetailProps {}
-console.log(moment(new Date()).isoWeeksInYear());
 
 const HabbitDetail: FC<HabbitDetailProps> = () => {
   let params = useParams();
+  const { habitatController } = useAppContext();
   const [basicStatistics, setBasicStatistics] = useState<BasicStatistics>();
   const [heatMapValues, setHeatMapValues] = useState<any>();
 
@@ -32,7 +31,6 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
     // background: "#292929",
     boxShadow: "var(--semi-shadow-elevated)",
   };
-  const today = new Date();
   const commentClass = "flex flex-col justify-center items-center";
 
   const lineOption = useMemo(
@@ -119,7 +117,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
     () => [
       {
         name: "Count",
-        data: lineMonthData,
+        data: lineMonthData ?? [],
       },
     ],
     [lineMonthData]
@@ -128,118 +126,23 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
     () => [
       {
         name: "Count",
-        data: lineWeekData,
+        data: lineWeekData ?? [],
       },
     ],
     [lineWeekData]
   );
 
-  const getStatisticsData = (item: Habbit) => {
-    const createDate = item.createDate;
-    const start = item.recorders.findIndex((v) =>
-      moment(v.date).isSame(createDate, "day")
-    );
-    const end = item.recorders.findIndex((v) =>
-      moment(v.date).isSame(today, "day")
-    );
-
-    const total = item.recorders.slice(start, end + 1).length;
-    const statistic = {
-      times: item.count,
-      missed: total - item.count < 0 ? 0 : total - item.count,
-      total: total,
-    };
-
-    return statistic;
-  };
-
   useMount(async () => {
-    /**
-     * get staitistic data
-     */
-    const item = await db.habbitList.where({ name: params.name }).toArray();
-    const days = await getHeatData();
-    const statistic = await getStatisticsData(item[0]);
-    const lineMonth = await getLineMonthData(item[0]);
-    const lineWeek = await getLineWeekData(item[0]);
-
-    
-    const res = days.map((v, index) => {
-      return {
-        date: moment(v.date).format("YYYY-MM-DD"),
-        count: v.isActive ? 3 : 1,
-      };
-    });
+    const { heatData, statistic, lineMonth, lineWeek } =
+      await habitatController.getHabbitRecorders(params.name ?? "");
+    console.log(heatData);
 
     setBasicStatistics(statistic);
-    setHeatMapValues(res);
+    setHeatMapValues(heatData);
 
     setLineMonthData(lineMonth);
     setLineWeekData(lineWeek);
   });
-
-  const getHeatData = async () => {
-    const item = await db.habbitList.where({ name: params.name }).toArray();
-    const end = item[0].recorders.findIndex(
-      (item) => moment(item.date).dayOfYear() === moment(today).dayOfYear()
-    );
-
-    return item[0].recorders.slice(end - 150 > 0 ? end - 150 : 0, end + 1);
-  };
-
-  /**
-   * get 12 months data
-   * @param item
-   * @returns
-   */
-  const getLineMonthData = async (item: Habbit) => {
-    const res = [];
-    for (let i = 0; i < 12; i++) {
-      const temp = [];
-      const end = item.recorders.findIndex(
-        (item) => moment(item.date).month() === i
-      );
-      res.push(
-        item.recorders
-          .slice(end, moment(item.recorders[end].date).daysInMonth())
-          .filter((v) => v.isActive).length
-      );
-    }
-
-    return res;
-  };
-
-  /**
-   * get recently 4 weeks data
-   * @param item
-   * @returns
-   */
-  const getLineWeekData = async (item: Habbit) => {
-    const res = [];
-    const currentWeekStartDate = moment().startOf("week");
-    const end = item.recorders.findIndex((item) =>
-      moment(item.date).startOf("week").isSame(currentWeekStartDate)
-    );
-
-    const currentWeekCount = item.recorders
-      .slice(end, 7)
-      .filter((v) => v.isActive).length;
-    res.push(currentWeekCount);
-    for (let i = 1; i < 4; i++) {
-      const start = currentWeekStartDate.subtract(7, "day");
-      const temp = item.recorders.findIndex((item) =>
-        moment(item.date).isSame(start)
-      );
-
-      const currentWeekCount = item.recorders
-        .slice(temp, 7)
-        .filter((v) => v.isActive).length;
-
-      res.push(currentWeekCount);
-    }
-
-    return res;
-  };
 
   return (
     <div className=" pt-4 px-4 ">
