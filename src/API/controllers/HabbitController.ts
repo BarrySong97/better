@@ -74,7 +74,7 @@ export class HabbitController {
       .map((v, index) => {
         return {
           date: moment(v.date).format("YYYY-MM-DD"),
-          count: v.isActive ? 3 : 1,
+          count: v.isActive ? 1 : 0,
         };
       });
   }
@@ -145,6 +145,6 @@ export class HabbitController {
     const lineMonth = await this.getLineMonthData(item[0]);
     const lineWeek = await this.getLineWeekData(item[0]);
 
-    return { heatData, statistic, lineMonth, lineWeek };
+    return { heatData, statistic, lineMonth, lineWeek, item: item[0] };
   }
 }

@@ -19,6 +19,7 @@ specifiers:
   '@ionic/storage': ^3.0.6
   '@types/react': ^17.0.33
   '@types/react-calendar-heatmap': ^1.6.3
+  '@types/react-color': ^3.0.6
   '@types/react-dom': ^17.0.10
   '@types/react-router-dom': ^5.3.2
   '@types/uuid': ^8.3.3
@@ -37,6 +38,7 @@ specifiers:
   react: ^17.0.0
   react-apexcharts: ^1.3.9
   react-calendar-heatmap: ^1.8.1
+  react-color: ^2.19.3
   react-dom: ^17.0.0
   react-router: ^5.0.1
   react-router-dom: '6'
@@ -90,6 +92,7 @@ dependencies:
   react: 17.0.2
   react-apexcharts: 1.3.9_apexcharts@3.32.1+react@17.0.2
   react-calendar-heatmap: 1.8.1_react@17.0.2
+  react-color: 2.19.3_react@17.0.2
   react-dom: 17.0.2_react@17.0.2
   react-router: 5.2.1_react@17.0.2
   react-router-dom: 6.2.1_react-dom@17.0.2+react@17.0.2
@@ -114,6 +117,7 @@ devDependencies:
   '@capacitor/cli': 3.3.3
   '@types/react': 17.0.38
   '@types/react-calendar-heatmap': 1.6.3
+  '@types/react-color': 3.0.6
   '@types/react-dom': 17.0.11
   '@types/react-router-dom': 5.3.2
   '@types/uuid': 8.3.3
@@ -632,6 +636,14 @@ packages:
     dev: false
     optional: true
 
+  /@icons/material/0.2.4_react@17.0.2:
+    resolution: {integrity: sha512-QPcGmICAPbGLGb6F/yNf/KzKqvFx8z5qx3D1yFqVAjoFmXK35EgyW+cJ57Te3CNsmzblwtzakLGFqHPqrfb4Tw==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      react: 17.0.2
+    dev: false
+
   /@ionic-enterprise/secure-storage/2.2.1_39c95bb9232b71b0c330d0d5506ab1ac:
     resolution: {integrity: sha512-b+my7AVlHkaDehOpI7V0TvUeHS/0Myswf9Az23+VSYLF9smP9HyIvI+B//Qsh/3NkRyDfp/H5/8nI9vNZNQfRw==}
     peerDependencies:
@@ -877,6 +889,13 @@ packages:
       '@types/react': 17.0.38
     dev: true
 
+  /@types/react-color/3.0.6:
+    resolution: {integrity: sha512-OzPIO5AyRmLA7PlOyISlgabpYUa3En74LP8mTMa0veCA719SvYQov4WLMsHvCgXP+L+KI9yGhYnqZafVGG0P4w==}
+    dependencies:
+      '@types/react': 17.0.38
+      '@types/reactcss': 1.2.6
+    dev: true
+
   /@types/react-dom/17.0.11:
     resolution: {integrity: sha512-f96K3k+24RaLGVu/Y2Ng3e1EbZ8/cVJvypZWd7cy0ofCBaf2lcM46xNhycMZ2xGwbBjRql7hOlZ+e2WlJ5MH3Q==}
     dependencies:
@@ -910,6 +929,12 @@ packages:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
       csstype: 3.0.10
+
+  /@types/reactcss/1.2.6:
+    resolution: {integrity: sha512-qaIzpCuXNWomGR1Xq8SCFTtF4v8V27Y6f+b9+bzHiv087MylI/nTCqqdChNeWS7tslgROmYB7yeiruWX7WnqNg==}
+    dependencies:
+      '@types/react': 17.0.38
+    dev: true
 
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
@@ -1777,6 +1802,10 @@ packages:
       lie: 3.1.1
     dev: false
 
+  /lodash-es/4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+    dev: false
+
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: false
@@ -1799,6 +1828,10 @@ packages:
     dependencies:
       sourcemap-codec: 1.4.8
     dev: true
+
+  /material-colors/1.2.6:
+    resolution: {integrity: sha512-6qE4B9deFBIa9YSpOc9O0Sgc43zTeVYbgDT5veRKSlB2+ZuHNoVVxA1L/ckMUayV9Ay9y7Z/SZCLcGteW9i7bg==}
+    dev: false
 
   /memoize-one/5.2.1:
     resolution: {integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==}
@@ -2042,6 +2075,21 @@ packages:
       react: 17.0.2
     dev: false
 
+  /react-color/2.19.3_react@17.0.2:
+    resolution: {integrity: sha512-LEeGE/ZzNLIsFWa1TMe8y5VYqr7bibneWmvJwm1pCn/eNmrabWDh659JSPn9BuaMpEfU83WTOJfnCcjDZwNQTA==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      '@icons/material': 0.2.4_react@17.0.2
+      lodash: 4.17.21
+      lodash-es: 4.17.21
+      material-colors: 1.2.6
+      prop-types: 15.7.2
+      react: 17.0.2
+      reactcss: 1.2.3
+      tinycolor2: 1.4.2
+    dev: false
+
   /react-dom/17.0.2_react@17.0.2:
     resolution: {integrity: sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==}
     peerDependencies:
@@ -2203,6 +2251,12 @@ packages:
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
+    dev: false
+
+  /reactcss/1.2.3:
+    resolution: {integrity: sha512-KiwVUcFu1RErkI97ywr8nvx8dNOpT03rbnma0SSalTYjkrPYaEajR4a/MRt6DZ46K6arDRbWMNHF+xH7G7n/8A==}
+    dependencies:
+      lodash: 4.17.21
     dev: false
 
   /readable-stream/3.6.0:
@@ -2486,6 +2540,10 @@ packages:
 
   /tiny-warning/1.0.3:
     resolution: {integrity: sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==}
+    dev: false
+
+  /tinycolor2/1.4.2:
+    resolution: {integrity: sha512-vJhccZPs965sV/L2sU4oRQVAos0pQXwsvTLkWYdqJ+a8Q5kPFzJTuOFwy7UniPli44NKQGAglksjvOcpo95aZA==}
     dev: false
 
   /to-fast-properties/2.0.0:

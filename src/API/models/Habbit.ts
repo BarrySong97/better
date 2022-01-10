@@ -2,6 +2,7 @@ export interface Habbit {
   id: string;
   name: string;
   count: number;
+  color: string;
   createDate: Date;
   recorders: HabbitRecorder[];
 }
@@ -11,6 +12,7 @@ export interface AddHabbit {
   name: string;
   createDate: Date;
   count: number;
+  color: string;
   recorders?: HabbitRecorder[];
 }
 

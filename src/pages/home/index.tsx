@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../layout/context";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../../API/db";
+import { CirclePicker } from "react-color";
 import moment from "moment";
 import { BaseFormApi } from ".pnpm/@douyinfe+semi-foundation@2.2.0/node_modules/@douyinfe/semi-foundation/lib/es/form/interface";
 import { getCurrentWeekDate } from "../../utils/date";
@@ -20,6 +21,7 @@ const Home: FC<HomeProps> = () => {
   const listData = useLiveQuery(() => db.habbitList.toArray());
   const { habitatController } = useAppContext();
   const [habbitName, setHabbitName] = useState<string>("");
+  const [addcolor, setAddcolor] = useState<string>("#2563eb");
   const [isEmpty, { setTrue: setEmptyTrue, setFalse: setEmptyFalse }] =
     useBoolean(false);
   const [state, { toggle, setTrue, setFalse }] = useBoolean(false);
@@ -38,6 +40,7 @@ const Home: FC<HomeProps> = () => {
         <CubicHabbit
           key={v.id}
           id={v.id}
+          color={v.color}
           weekData={weekData}
           onClick={() => {
             navigate(`/detail/${v.name}`);
@@ -63,6 +66,7 @@ const Home: FC<HomeProps> = () => {
         name: habbitName,
         createDate: new Date(),
         count: 0,
+        color: addcolor,
       });
 
       setFalse();
@@ -109,6 +113,20 @@ const Home: FC<HomeProps> = () => {
                     placeholder={"NEW HABBIT"}
                   ></Form.Input>
                 </Form>
+                <CirclePicker
+                  colors={[
+                    "#2563eb",
+                    "#2196f3",
+                    "#03a9f4",
+                    "#f44336",
+                    "#e91e63",
+                    "#9c27b0",
+                    "#673ab7",
+                  ]}
+                  onChange={(v) => setAddcolor(v.hex)}
+                  color={addcolor}
+                  circleSpacing={16}
+                />
               </div>
             </Dialog>
           )}

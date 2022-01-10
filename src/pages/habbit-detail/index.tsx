@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from "react";
+import React, { FC, useCallback, useMemo, useState } from "react";
 import { TabPane, Tabs, Tooltip } from "@douyinfe/semi-ui";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
@@ -9,7 +9,15 @@ import { useMount } from "ahooks";
 import { useParams } from "react-router-dom";
 import moment from "moment";
 import { useAppContext } from "../../layout/context";
-
+const themeColor = [
+  "#2563eb",
+  "#2196f3",
+  "#03a9f4",
+  "#f44336",
+  "#e91e63",
+  "#9c27b0",
+  "#673ab7",
+];
 export interface BasicStatistics {
   times: number;
   missed: number;
@@ -22,7 +30,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
   const { habitatController } = useAppContext();
   const [basicStatistics, setBasicStatistics] = useState<BasicStatistics>();
   const [heatMapValues, setHeatMapValues] = useState<any>();
-
+  const [color, setColor] = useState("#26a0fc");
   const [lineMonthData, setLineMonthData] = useState<Number[]>();
   const [lineWeekData, setLineWeekData] = useState<Number[]>();
   const [tabKey, setTabKey] = useState<string>("1");
@@ -46,6 +54,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
             show: false,
           },
         },
+        colors: [color],
         tooltip: {
           x: {
             show: false,
@@ -110,7 +119,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
         },
       },
     }),
-    [tabKey]
+    [tabKey, color]
   );
 
   const lineMonthSeries = useMemo(
@@ -132,17 +141,38 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
     [lineWeekData]
   );
 
-  useMount(async () => {
-    const { heatData, statistic, lineMonth, lineWeek } =
-      await habitatController.getHabbitRecorders(params.name ?? "");
-    console.log(heatData);
+  const renderCalendarColor = useCallback(
+    (value: { count: number }) => {
+      if (value) {
+        console.log(value);
 
+        const idx = themeColor.findIndex((v) => v === color);
+        return value.count === 1 ? `color-theme-${idx + 1}` : "color-github-1";
+      } else {
+        return "color-github-1";
+      }
+    },
+    [color]
+  );
+
+  useMount(async () => {
+    const { heatData, statistic, lineMonth, lineWeek, item } =
+      await habitatController.getHabbitRecorders(params.name ?? "");
+    setColor(item.color);
     setBasicStatistics(statistic);
     setHeatMapValues(heatData);
 
     setLineMonthData(lineMonth);
     setLineWeekData(lineWeek);
   });
+
+  const renderTabColor = (key: string) => {
+    if (tabKey === key) {
+      return { color: "white", backgroundColor: color, fontWeight: 600 };
+    } else {
+      return { color: "#77797b", backgroundColor: "", fontWeight: 400 };
+    }
+  };
 
   return (
     <div className=" pt-4 px-4 ">
@@ -167,10 +197,23 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
       </Section>
 
       <Section text={"Trend"}>
-        <Tabs onChange={(key: string) => setTabKey(key)} type="button">
-          <TabPane tab="月" itemKey={"1"}></TabPane>
-          <TabPane tab="周" itemKey="2"></TabPane>
-        </Tabs>
+        <div className="flex ">
+          <div
+            style={renderTabColor("1")}
+            onClick={() => setTabKey("1")}
+            className="better-tab-item"
+          >
+            月
+          </div>
+          <div
+            style={renderTabColor("2")}
+            onClick={() => setTabKey("2")}
+            className="better-tab-item"
+          >
+            周
+          </div>
+        </div>
+
         <Chart
           options={lineOption.options}
           series={tabKey === "1" ? lineMonthSeries : lineWeekSeries}
@@ -195,12 +238,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
                 "data-tip": value.date,
               };
             }}
-            classForValue={(value) => {
-              if (!value) {
-                return "color-github-1";
-              }
-              return `color-github-${value.count}`;
-            }}
+            classForValue={renderCalendarColor}
           />
         )}
       </Section>

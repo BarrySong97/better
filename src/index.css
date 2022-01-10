@@ -1,13 +1,9 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+:root {
+  --habbit-theme-1: "#2563eb";
+  --habbit-theme-2: "#2196f3";
+  --habbit-theme-3: "#03a9f4";
+  --habbit-theme-4: "#f44336";
+  --habbit-theme-5: "#e91e63";
+  --habbit-theme-6: "#9c27b0";
+  --habbit-theme-7: "#673ab7";
 }

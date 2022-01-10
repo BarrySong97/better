@@ -3,7 +3,6 @@ import { Button, Card, Typography } from "@douyinfe/semi-ui";
 import moment from "moment";
 import "./index.css";
 import { HabbitRecorder } from "../../../../API/models/Habbit";
-import { db } from "../../../../API/db";
 import { useAppContext } from "../../../../layout/context";
 const { Title, Text } = Typography;
 
@@ -11,10 +10,16 @@ export interface CubicHabbitProps {
   title: string;
   id: string;
   frequency: string;
+  color: string;
   onClick: () => void;
   weekData: HabbitRecorder[];
 }
-const CubicHabbit: FC<CubicHabbitProps> = ({ title, onClick, weekData }) => {
+const CubicHabbit: FC<CubicHabbitProps> = ({
+  title,
+  onClick,
+  weekData,
+  color,
+}) => {
   const { habitatController } = useAppContext();
   const getWeekDay = () => {
     return moment.weekdaysShort();
@@ -27,8 +32,9 @@ const CubicHabbit: FC<CubicHabbitProps> = ({ title, onClick, weekData }) => {
       const isActive = weekData[index].isActive;
       const render = moment(weekData[index].date).format("DD");
       const activeCss = isActive
-        ? "text-white h-10 w-10 rounded-full flex items-center justify-center bg-blue-600 text-center"
-        : "h-10 w-10 rounded-full flex items-center justify-center bg-indigo-50  text-center";
+        ? "text-white h-10 w-10 rounded-full flex items-center justify-center text-center"
+        : "h-10 w-10 rounded-full flex items-center justify-center  text-center";
+      const activeColor = isActive ? color : "#f5f5f5";
       return (
         <div
           key={`cubic-habbit-day-${index}`}
@@ -53,6 +59,7 @@ const CubicHabbit: FC<CubicHabbitProps> = ({ title, onClick, weekData }) => {
                 }
               } catch (error) {}
             }}
+            style={{ backgroundColor: activeColor }}
             className={activeCss}
           >
             {render}

@@ -1,3 +1,7 @@
 .rv-button--danger {
   background-color: blue;
 }
+
+.circle-picker {
+  flex-wrap: nowrap !important;
+}
