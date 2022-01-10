@@ -1,12 +1,13 @@
 import React, { createContext, FC, useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
-import { Dialog, NavBar, Toast } from "react-vant";
+import { Dialog, NavBar } from "react-vant";
 import { Form, Space, Typography } from "@douyinfe/semi-ui";
 import { db } from "../API/db";
 import { Provider } from "./context";
 import { IconDeleteStroked, IconEditStroked } from "@douyinfe/semi-icons";
 import { BaseFormApi } from ".pnpm/@douyinfe+semi-foundation@2.2.0/node_modules/@douyinfe/semi-foundation/lib/es/form/interface";
 import { useBoolean } from "ahooks";
+import { CirclePicker } from "react-color";
 
 export interface LayoutProps {}
 const { Title } = Typography;
@@ -20,7 +21,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
   const ROUTE_TITLE = { "/": "Home", "/detail": "Habbit Detail" };
   const title = params.name ? params.name : ROUTE_TITLE[pathname];
   const [habbitName, setHabbitName] = useState<string>("");
-
+  const [addcolor, setAddcolor] = useState<string>("#2563eb");
   const onDelelte = async () => {
     return await db.habbitList
       .where("name")
@@ -73,9 +74,13 @@ const Layout: FC<LayoutProps> = ({ children }) => {
         .where({
           name: params.name,
         })
-        .modify((f) => (f.name = habbitName));
+        .modify((f) => {
+          f.name = habbitName;
+          f.color = addcolor;
+        });
       if (count) {
         navigate(`/detail/${habbitName}`);
+
         setFalse();
       }
     } catch (e) {
@@ -117,6 +122,20 @@ const Layout: FC<LayoutProps> = ({ children }) => {
                 placeholder={"NEW HABBIT"}
               ></Form.Input>
             </Form>
+            <CirclePicker
+              colors={[
+                "#2563eb",
+                "#2196f3",
+                "#03a9f4",
+                "#f44336",
+                "#e91e63",
+                "#9c27b0",
+                "#673ab7",
+              ]}
+              onChange={(v) => setAddcolor(v.hex)}
+              color={addcolor}
+              circleSpacing={16}
+            />
           </div>
         </Dialog>
       )}

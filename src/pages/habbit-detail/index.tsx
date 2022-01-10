@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { TabPane, Tabs, Tooltip } from "@douyinfe/semi-ui";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
@@ -9,6 +9,8 @@ import { useMount } from "ahooks";
 import { useParams } from "react-router-dom";
 import moment from "moment";
 import { useAppContext } from "../../layout/context";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../../API/db";
 const themeColor = [
   "#2563eb",
   "#2196f3",
@@ -28,9 +30,18 @@ export interface HabbitDetailProps {}
 const HabbitDetail: FC<HabbitDetailProps> = () => {
   let params = useParams();
   const { habitatController } = useAppContext();
+
   const [basicStatistics, setBasicStatistics] = useState<BasicStatistics>();
   const [heatMapValues, setHeatMapValues] = useState<any>();
   const [color, setColor] = useState("#26a0fc");
+
+  const item = useLiveQuery(() => {
+    return db.habbitList
+      .where("name")
+      .equals(params.name ?? "")
+      .first();
+  }, [params.name]);
+
   const [lineMonthData, setLineMonthData] = useState<Number[]>();
   const [lineWeekData, setLineWeekData] = useState<Number[]>();
   const [tabKey, setTabKey] = useState<string>("1");
@@ -54,7 +65,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
             show: false,
           },
         },
-        colors: [color],
+        colors: [item?.color ?? ""],
         tooltip: {
           x: {
             show: false,
@@ -119,7 +130,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
         },
       },
     }),
-    [tabKey, color]
+    [tabKey, item]
   );
 
   const lineMonthSeries = useMemo(
@@ -143,16 +154,14 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
 
   const renderCalendarColor = useCallback(
     (value: { count: number }) => {
-      if (value) {
-        console.log(value);
-
-        const idx = themeColor.findIndex((v) => v === color);
+      if (value && item) {
+        const idx = themeColor.findIndex((v) => v === item.color);
         return value.count === 1 ? `color-theme-${idx + 1}` : "color-github-1";
       } else {
         return "color-github-1";
       }
     },
-    [color]
+    [color, item]
   );
 
   useMount(async () => {
@@ -167,8 +176,8 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
   });
 
   const renderTabColor = (key: string) => {
-    if (tabKey === key) {
-      return { color: "white", backgroundColor: color, fontWeight: 600 };
+    if (tabKey === key && item) {
+      return { color: "white", backgroundColor: item.color, fontWeight: 600 };
     } else {
       return { color: "#77797b", backgroundColor: "", fontWeight: 400 };
     }
