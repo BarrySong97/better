@@ -5,12 +5,13 @@ import "react-calendar-heatmap/dist/styles.css";
 import "./index.css";
 import Chart from "react-apexcharts";
 import Section from "@douyinfe/semi-ui/lib/es/form/section";
-import { useMount } from "ahooks";
+import { useBoolean, useMount } from "ahooks";
 import { useParams } from "react-router-dom";
 import moment from "moment";
 import { useAppContext } from "../../layout/context";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../../API/db";
+import HabbitModal from "../home/components/habbit-modal";
 const themeColor = [
   "#2563eb",
   "#2196f3",

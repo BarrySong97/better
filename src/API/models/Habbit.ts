@@ -4,6 +4,7 @@ export interface Habbit {
   count: number;
   color: string;
   createDate: Date;
+  rank: number;
   recorders: HabbitRecorder[];
 }
 
