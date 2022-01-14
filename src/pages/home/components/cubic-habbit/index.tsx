@@ -1,9 +1,12 @@
-import React, { FC } from "react";
+import React, { FC, useRef } from "react";
 import { Button, Card, Typography } from "@douyinfe/semi-ui";
 import moment from "moment";
 import "./index.css";
-import { HabbitRecorder } from "../../../../API/models/Habbit";
+import { Habbit, HabbitRecorder } from "../../../../API/models/Habbit";
 import { useAppContext } from "../../../../layout/context";
+import { Toast } from "react-vant";
+import { useBoolean, useLongPress } from "ahooks";
+import HabbitModal from "../habbit-modal";
 const { Title, Text } = Typography;
 
 export interface CubicHabbitProps {
@@ -11,6 +14,7 @@ export interface CubicHabbitProps {
   id: string;
   frequency: string;
   color: string;
+  item: Habbit;
   onClick: () => void;
   weekData: HabbitRecorder[];
 }
@@ -19,12 +23,20 @@ const CubicHabbit: FC<CubicHabbitProps> = ({
   onClick,
   weekData,
   color,
+  item,
 }) => {
   const { habitatController } = useAppContext();
   const getWeekDay = () => {
     return moment.weekdaysShort();
   };
 
+  const [
+    clickModalVisible,
+    { setTrue: setClickModalVisibleTrue, setFalse: setClickModalVisibleFalse },
+  ] = useBoolean(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useLongPress(setClickModalVisibleTrue, ref);
   const renderWeek = () => {
     const weekDayString = getWeekDay();
 
@@ -70,6 +82,7 @@ const CubicHabbit: FC<CubicHabbitProps> = ({
   };
   return (
     <div
+      ref={ref}
       className="mb-4 text-white rounded-md"
       // style={{ backgroundColor: "#292929" }}
     >
@@ -77,7 +90,8 @@ const CubicHabbit: FC<CubicHabbitProps> = ({
         <div className="flex text-white justify-between items-baseline mb-4">
           <Title heading={6}>{title}</Title>
           <Button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               onClick();
             }}
           >
@@ -86,6 +100,14 @@ const CubicHabbit: FC<CubicHabbitProps> = ({
         </div>
         <div className="flex justify-between">{renderWeek()}</div>
       </Card>
+
+      <HabbitModal
+        type="edit"
+        item={item}
+        visible={clickModalVisible}
+        onOk={setClickModalVisibleFalse}
+        onCancel={setClickModalVisibleFalse}
+      />
     </div>
   );
 };

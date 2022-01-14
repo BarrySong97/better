@@ -1,7 +1,7 @@
-import { Button, Form } from "@douyinfe/semi-ui";
+import { Button, Form, Typography } from "@douyinfe/semi-ui";
 import React, { FC, useEffect, useState } from "react";
 import CubicHabbit from "./components/cubic-habbit";
-import { IconCopyAdd } from "@douyinfe/semi-icons";
+import { IconAscend, IconCopyAdd } from "@douyinfe/semi-icons";
 import {
   DragDropContext,
   Droppable,
@@ -19,19 +19,28 @@ import moment from "moment";
 import { getCurrentWeekDate } from "../../utils/date";
 import HabbitModal from "./components/habbit-modal";
 import { Habbit } from "../../API/models/Habbit";
-
+import ListModal from "./components/list-modal";
+import { NavBar } from "react-vant";
+const { Title } = Typography;
 export interface HomeProps {}
 const Home: FC<HomeProps> = () => {
   const navigate = useNavigate();
 
-  const queryData = useLiveQuery(() =>
+  const listData = useLiveQuery(() =>
     db.habbitList.toCollection().sortBy("rank")
   );
-  const [listData, setListData] = useState<Habbit[]>();
+
   const days = getCurrentWeekDate();
-  const [isEmpty, { setTrue: setEmptyTrue, setFalse: setEmptyFalse }] =
-    useBoolean(false);
-  const [state, { setTrue, setFalse }] = useBoolean(false);
+
+  const [
+    addModalVisible,
+    { setTrue: setAddModalVisibleTrue, setFalse: setAddModalVisibleFalse },
+  ] = useBoolean(false);
+  const [
+    rankModalVisible,
+    { setTrue: setRankModalVisibleTrue, setFalse: setRankModalVisibleFalse },
+  ] = useBoolean(false);
+
   const renderItem = (v: Habbit) => {
     const idx = v.recorders.findIndex(
       (v) => moment(v.date).dayOfYear() === days[0].dayOfYear()
@@ -43,6 +52,7 @@ const Home: FC<HomeProps> = () => {
       <CubicHabbit
         key={v.id}
         id={v.id}
+        item={v}
         color={v.color}
         weekData={weekData}
         onClick={() => {
@@ -54,86 +64,27 @@ const Home: FC<HomeProps> = () => {
     );
   };
 
-  useEffect(() => {
-    setListData(queryData);
-  }, [queryData]);
-
-  useEffect(() => {
-    if (listData?.length) {
-      setEmptyFalse();
-    } else {
-      setEmptyTrue();
-    }
-  }, [listData]);
-
-  const reorder = async (
-    list: Habbit[],
-    startIndex: number,
-    endIndex: number
-  ) => {
-    console.log(startIndex, endIndex);
-
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-    setListData([...result]);
-    await db.habbitList.toCollection().modify((f) => {
-      const idx = result.findIndex((v) => v.id === f.id);
-      f.rank = idx;
-    });
-  };
-
-  const onDragEnd = (result: DropResult) => {
-    if (!result.destination) {
-      return;
-    }
-
-    reorder(listData ?? [], result.source.index, result.destination.index);
-  };
-
   return (
     <>
+      <NavBar
+        fixed
+        className="mt-8"
+        rightText={<IconAscend onClick={setRankModalVisibleTrue} />}
+        title={<Title heading={4}>Home</Title>}
+      />
       <div
         style={{ height: "calc(100vh - 100px)" }}
         className="flex flex-col overflow-auto"
       >
         {listData?.length ? (
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="droppable">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {listData?.map((item, index) => (
-                    <Draggable
-                      key={item.id + ""}
-                      draggableId={item.id + ""}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={{
-                            ...provided.draggableProps.style,
-                          }}
-                        >
-                          {renderItem(item)}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          listData?.map((item, index) => renderItem(item))
         ) : (
           <></>
         )}
 
         <div className="pb-4 flex justify-center">
           <Button
-            onClick={() => setTrue()}
+            onClick={setAddModalVisibleTrue}
             icon={<IconCopyAdd />}
             theme="borderless"
             type="primary"
@@ -144,14 +95,17 @@ const Home: FC<HomeProps> = () => {
 
         <HabbitModal
           type="add"
-          visible={state}
-          onOk={() => {
-            setFalse();
-            // setRefresh(!refresh);
-          }}
-          onCancel={setFalse}
+          visible={addModalVisible}
+          onOk={setAddModalVisibleFalse}
+          onCancel={setAddModalVisibleFalse}
         />
       </div>
+      <ListModal
+        items={listData ?? []}
+        visible={rankModalVisible}
+        onOk={setRankModalVisibleFalse}
+        onCancel={setRankModalVisibleFalse}
+      />
     </>
   );
 };

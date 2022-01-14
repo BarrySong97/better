@@ -1,17 +1,18 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
-import { TabPane, Tabs, Tooltip } from "@douyinfe/semi-ui";
+import { TabPane, Tabs, Tooltip, Typography } from "@douyinfe/semi-ui";
 import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import "./index.css";
 import Chart from "react-apexcharts";
 import Section from "@douyinfe/semi-ui/lib/es/form/section";
 import { useBoolean, useMount } from "ahooks";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import moment from "moment";
 import { useAppContext } from "../../layout/context";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../../API/db";
-import HabbitModal from "../home/components/habbit-modal";
+import { NavBar } from "react-vant";
+const { Title } = Typography;
 const themeColor = [
   "#2563eb",
   "#2196f3",
@@ -42,7 +43,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
       .equals(params.name ?? "")
       .first();
   }, [params.name]);
-
+  const navigate = useNavigate();
   const [lineMonthData, setLineMonthData] = useState<Number[]>();
   const [lineWeekData, setLineWeekData] = useState<Number[]>();
   const [tabKey, setTabKey] = useState<string>("1");
@@ -184,75 +185,86 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
     }
   };
 
+  const navProps = {
+    title: <Title heading={3}>{item?.name}</Title>,
+    leftArrow: true,
+    onClickLeft: () => {
+      navigate("/", { replace: true });
+    },
+  };
   return (
-    <div className=" pt-4 px-4 ">
-      <Section style={{ marginTop: 0 }} text={"Basic Statistics"}>
-        <div
-          className="flex justify-evenly py-2 rounded-md mb-4"
-          style={commonCardStyle}
-        >
-          <div className={commentClass}>
-            <div>{basicStatistics?.times}</div>
-            <div>Times</div>
-          </div>
-          <div className={commentClass}>
-            <div>{basicStatistics?.missed}</div>
-            <div>missed</div>
-          </div>
-          <div className={commentClass}>
-            <div>{basicStatistics?.total}</div>
-            <div>Total</div>
-          </div>
-        </div>
-      </Section>
+    <>
+      <NavBar fixed className="mt-8" {...navProps} />
 
-      <Section text={"Trend"}>
-        <div className="flex ">
+      <div className=" pt-4 px-4 ">
+        <Section style={{ marginTop: 0 }} text={"Basic Statistics"}>
           <div
-            style={renderTabColor("1")}
-            onClick={() => setTabKey("1")}
-            className="better-tab-item"
+            className="flex justify-evenly py-2 rounded-md mb-4"
+            style={commonCardStyle}
           >
-            月
+            <div className={commentClass}>
+              <div>{basicStatistics?.times}</div>
+              <div>Times</div>
+            </div>
+            <div className={commentClass}>
+              <div>{basicStatistics?.missed}</div>
+              <div>missed</div>
+            </div>
+            <div className={commentClass}>
+              <div>{basicStatistics?.total}</div>
+              <div>Total</div>
+            </div>
           </div>
-          <div
-            style={renderTabColor("2")}
-            onClick={() => setTabKey("2")}
-            className="better-tab-item"
-          >
-            周
+        </Section>
+
+        <Section text={"Trend"}>
+          <div className="flex ">
+            <div
+              style={renderTabColor("1")}
+              onClick={() => setTabKey("1")}
+              className="better-tab-item"
+            >
+              月
+            </div>
+            <div
+              style={renderTabColor("2")}
+              onClick={() => setTabKey("2")}
+              className="better-tab-item"
+            >
+              周
+            </div>
           </div>
-        </div>
 
-        <Chart
-          options={lineOption.options}
-          series={tabKey === "1" ? lineMonthSeries : lineWeekSeries}
-          type="line"
-          // width="500"
-        />
-      </Section>
-      <Section style={{ marginTop: 0 }} className="px-2" text={"History"}>
-        {heatMapValues && (
-          <CalendarHeatmap
-            startDate={moment()
-              .startOf("year")
-              .subtract(150, "days")
-              .format("YYYY-MM-DD")}
-            endDate={moment().format("YYYY-MM-DD")}
-            // showWeekdayLabels={false}
-
-            showWeekdayLabels
-            values={heatMapValues}
-            tooltipDataAttrs={(value: any) => {
-              return {
-                "data-tip": value.date,
-              };
-            }}
-            classForValue={renderCalendarColor}
+          <Chart
+            options={lineOption.options}
+            series={tabKey === "1" ? lineMonthSeries : lineWeekSeries}
+            type="line"
+            // width="500"
           />
-        )}
-      </Section>
-    </div>
+        </Section>
+        <Section style={{ marginTop: 0 }} className="px-2" text={"History"}>
+          {heatMapValues && (
+            <CalendarHeatmap
+              startDate={moment()
+                .startOf("year")
+                .subtract(150, "days")
+                .format("YYYY-MM-DD")}
+              endDate={moment().format("YYYY-MM-DD")}
+              // showWeekdayLabels={false}
+
+              showWeekdayLabels
+              values={heatMapValues}
+              tooltipDataAttrs={(value: any) => {
+                return {
+                  "data-tip": value.date,
+                };
+              }}
+              classForValue={renderCalendarColor}
+            />
+          )}
+        </Section>
+      </div>
+    </>
   );
 };
 
