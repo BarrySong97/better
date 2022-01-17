@@ -24,6 +24,10 @@ export class HabbitController {
     await db.habbitList.add(habbit as Habbit);
   }
 
+  /**
+   * get all habbits
+   * @returns
+   */
   async listHabbit(): Promise<Habbit[]> {
     const getWeekDay = () => {
       return moment.weekdaysShort();
@@ -45,6 +49,11 @@ export class HabbitController {
     return res ?? [];
   }
 
+  /**
+   * tooggle habbit active
+   * @param title
+   * @param index
+   */
   async toggleCheck(title: string, index: number) {
     await db.habbitList
       .where({
@@ -64,6 +73,11 @@ export class HabbitController {
       });
   }
 
+  /**
+   * get habbit heat calendar data
+   * @param item
+   * @returns
+   */
   async getHeatData(item: Habbit) {
     const end = item.recorders.findIndex(
       (item) => moment(item.date).dayOfYear() === moment(new Date()).dayOfYear()
@@ -78,6 +92,12 @@ export class HabbitController {
         };
       });
   }
+
+  /**
+   * get line chart month data
+   * @param item
+   * @returns
+   */
   async getLineMonthData(item: Habbit) {
     const res = [];
     for (let i = 0; i < 12; i++) {
@@ -93,32 +113,51 @@ export class HabbitController {
 
     return res;
   }
+
+  /**
+   * get line chart week data(recent 4 week)
+   * @param item
+   * @returns
+   */
   async getLineWeekData(item: Habbit) {
     const res = [];
-    const currentWeekStartDate = moment().startOf("week");
-    const end = item.recorders.findIndex((item) =>
-      moment(item.date).startOf("week").isSame(currentWeekStartDate)
-    );
+    const currentWeekStartDate = moment(new Date()).startOf("isoWeek");
 
-    const currentWeekCount = item.recorders
-      .slice(end, 7)
-      .filter((v) => v.isActive).length;
+    // get current week
+    const end = item.recorders.filter((item) => {
+      return (
+        moment(item.date).startOf("isoWeek").format("YYYY-MM-DD") ===
+        currentWeekStartDate.format("YYYY-MM-DD")
+      );
+    });
+    // console.log(item.recorders);
+
+    const currentWeekCount = end.filter((v) => v.isActive).length;
+
     res.push(currentWeekCount);
     for (let i = 1; i < 4; i++) {
-      const start = currentWeekStartDate.subtract(7, "day");
-      const temp = item.recorders.findIndex((item) =>
-        moment(item.date).isSame(start)
-      );
+      const start = currentWeekStartDate.subtract(i, "week").format("YYYY-MM-DD");
+      console.log(start, 234);
 
-      const currentWeekCount = item.recorders
-        .slice(temp, 7)
-        .filter((v) => v.isActive).length;
+      const temp = item.recorders.filter((item) => {
+        return (
+          moment(item.date).startOf("isoWeek").format("YYYY-MM-DD") === start
+        );
+      });
+
+      const currentWeekCount = temp.filter((v) => v.isActive).length;
 
       res.push(currentWeekCount);
     }
 
     return res;
   }
+
+  /**
+   * get statistics card data
+   * @param item
+   * @returns
+   */
   async getStatisticsData(item: Habbit) {
     const createDate = item.createDate;
     const start = item.recorders.findIndex((v) =>
@@ -137,7 +176,11 @@ export class HabbitController {
 
     return statistic;
   }
-
+  /**
+   * get habbit detail data
+   * @param name
+   * @returns
+   */
   async getHabbitRecorders(name: string) {
     const item = await db.habbitList.where({ name: name }).toArray();
     const heatData = await this.getHeatData(item[0]);

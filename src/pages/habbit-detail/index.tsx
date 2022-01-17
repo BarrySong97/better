@@ -14,7 +14,7 @@ import { db } from "../../API/db";
 import { NavBar } from "react-vant";
 const { Title } = Typography;
 const themeColor = [
-  "#2563eb",
+  "#00D084",
   "#2196f3",
   "#03a9f4",
   "#f44336",
@@ -35,7 +35,7 @@ const HabbitDetail: FC<HabbitDetailProps> = () => {
 
   const [basicStatistics, setBasicStatistics] = useState<BasicStatistics>();
   const [heatMapValues, setHeatMapValues] = useState<any>();
-  const [color, setColor] = useState("#26a0fc");
+  const [color, setColor] = useState("#00D084");
 
   const item = useLiveQuery(() => {
     return db.habbitList

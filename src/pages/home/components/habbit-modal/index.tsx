@@ -24,7 +24,7 @@ const HabbitModal: FC<HabbitModalProps> = ({
   const [formApi, setFormApi] = useState<BaseFormApi<any>>();
   const { habitatController } = useAppContext();
   const [habbitName, setHabbitName] = useState<string>("");
-  const [addcolor, setAddcolor] = useState<string>("#2563eb");
+  const [addcolor, setAddcolor] = useState<string>("#00D084");
   useEffect(() => {
     if (type === "edit" && item) {
       setAddcolor(item.color);
@@ -97,7 +97,7 @@ const HabbitModal: FC<HabbitModalProps> = ({
         </Form>
         <CirclePicker
           colors={[
-            "#2196f3",
+            "#00D084",
             "#2563eb",
             "#03a9f4",
             "#f44336",
